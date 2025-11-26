@@ -1,0 +1,271 @@
+<!doctype html>
+<!-- 
+* Bootstrap Simple Admin Template
+* Version: 2.1
+* Author: Alexis Luna
+* Website: https://github.com/alexis-luna/bootstrap-simple-admin-template
+-->
+
+<?php
+// Database configuration
+$host = "localhost";     // your DB host
+$username = "ila_admin";      // your DB username
+$password = "admin123!@#";          // your DB password
+$dbname = "ila_db"; // replace with your DB name
+
+$conn = new mysqli($host, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+// echo $_POST['supplier_id'];
+if(isset($_POST['supplier_id'])){
+    
+    // echo $_POST['supplier_id'];
+// Collect form data
+$category_id        = mysqli_real_escape_string($conn, $_POST['category_id']);
+$supplier_id        = mysqli_real_escape_string($conn, $_POST['supplier_id']);
+$product_name       = mysqli_real_escape_string($conn, $_POST['product_name']);
+$product_description = mysqli_real_escape_string($conn, $_POST['product_description']);
+$price              = mysqli_real_escape_string($conn, $_POST['price']);
+$stock_quantity     = mysqli_real_escape_string($conn, $_POST['stock_quantity']);
+$is_active          = mysqli_real_escape_string($conn, $_POST['is_active']);
+
+// Handle image upload
+// $target_dir = "uploads/";
+// if (!is_dir($target_dir)) {
+//     mkdir($target_dir, 0777, true); // create directory if not exists
+// }
+// $image_name = basename($_FILES["product_image"]["name"]);
+// $target_file = $target_dir . time() . "_" . $image_name;
+
+$product_images_paths = [];
+
+foreach ($_FILES['product_images']['tmp_name'] as $key => $tmp_name) {
+    $image_name = basename($_FILES['product_images']['name'][$key]);
+    $target_path = "uploads/" . time() . "_" . $image_name;
+
+    if (move_uploaded_file($_FILES['product_images']['tmp_name'][$key], $target_path)) {
+        $product_images_paths[] = $target_path;
+    }
+}
+
+// Convert array to comma-separated string for DB storage
+$images_combined = implode(",", $product_images_paths);
+
+// if (move_uploaded_file($_FILES["product_image"]["tmp_name"], $target_file)) {
+    // Image uploaded successfully, insert data into database
+    $sql = "INSERT INTO products_supplier (categoryid, supplier_id, product_name, product_description, product_image, price, stock_quantity, is_active) 
+            VALUES ('$category_id', '$supplier_id', '$product_name', '$product_description', '$images_combined', '$price', '$stock_quantity', '$is_active')";
+// echo $sql;
+    if ($conn->query($sql) === TRUE) {
+        // echo "Product added successfully!";
+        // header("Location: success_page.php");
+    } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
+} else {
+    echo "Error uploading image.";
+}
+
+// $conn->close();
+// }
+?>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Forms | Bootstrap Simple Admin Template</title>
+    <link href="assets/vendor/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+    <link href="assets/vendor/fontawesome/css/solid.min.css" rel="stylesheet">
+    <link href="assets/vendor/fontawesome/css/brands.min.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/master.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="wrapper">
+        <!-- sidebar navigation component -->
+     <?php include 'side_bar.php';?>
+        <!-- end of sidebar component -->
+        <div id="body" class="active">
+            <!-- navbar navigation component -->
+            <nav class="navbar navbar-expand-lg navbar-white bg-white">
+                <button type="button" id="sidebarCollapse" class="btn btn-light">
+                    <i class="fas fa-bars"></i><span></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="nav navbar-nav ms-auto">
+                        <li class="nav-item dropdown">
+<!--                            <div class="nav-dropdown">
+                                <a href="#" id="nav1" class="nav-item nav-link dropdown-toggle text-secondary" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-link"></i> <span>Quick Links</span> <i style="font-size: .8em;" class="fas fa-caret-down"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end nav-link-menu" aria-labelledby="nav1">
+                                    <ul class="nav-list">
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-list"></i> Access Logs</a></li>
+                                        <div class="dropdown-divider"></div>
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-database"></i> Back ups</a></li>
+                                        <div class="dropdown-divider"></div>
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-cloud-download-alt"></i> Updates</a></li>
+                                        <div class="dropdown-divider"></div>
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-user-shield"></i> Roles</a></li>
+                                    </ul>
+                                </div>
+                            </div>-->
+                        </li>
+                        <li class="nav-item dropdown">
+                            <div class="nav-dropdown">
+                                <a href="#" id="nav2" class="nav-item nav-link dropdown-toggle text-secondary" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user"></i> <span>Admin</span> <i style="font-size: .8em;" class="fas fa-caret-down"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end nav-link-menu">
+                                    <ul class="nav-list">
+<!--                                        <li><a href="" class="dropdown-item"><i class="fas fa-address-card"></i> Profile</a></li>
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-envelope"></i> Messages</a></li>
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-cog"></i> Settings</a></li>-->
+                                        <div class="dropdown-divider"></div>
+                                        <li><a href="" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <!-- end of navbar navigation -->
+            <div class="content">
+                <div class="container">
+                    <div class="page-title">
+                        <h3>Forms</h3>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-lg-12">
+    <div class="card">
+        <div class="card-header">Add New Product</div>
+        <div class="card-body">
+            <form action="" method="POST" enctype="multipart/form-data">
+                <!-- Category ID -->
+                <div class="mb-3 row">
+                    <label class="col-sm-2 col-form-label">Category ID</label>
+                    <div class="col-sm-10">
+                         <select class="form-control" name="category_id">
+                                <option value="0">Select Category</option>
+                          
+                        <?php
+                         // Image uploaded successfully, insert data into database
+    $sql = "SELECT * FROM `product_categories`";
+$result=$conn->query($sql) ;
+   while($row=$result->fetch_assoc()){
+                        ?>
+                       
+                            <option value="<?php echo $row['category_name']?>"><?php echo $row['category_name']?></option>
+                            
+                            <?php } ?>
+                        </select>
+                        <!--<input type="number" name="category_id" class="form-control" required>-->
+                    </div>
+                </div>
+
+                <!-- Supplier ID -->
+                <div class="mb-3 row">
+                    <label class="col-sm-2 col-form-label">Supplier ID</label>
+                    <div class="col-sm-10">
+                              <select class="form-control" name="supplier_id">
+                                <option value="0">Select Supplier</option>
+                          
+                        <?php
+                         // Image uploaded successfully, insert data into database
+    $sql1 = "SELECT * FROM `suppliers`";
+$result1=$conn->query($sql1) ;
+   while($row1=$result1->fetch_assoc()){
+                        ?>
+                       
+                            <option value="<?php echo $row1['company_name']?>"><?php echo $row1['ila_id']?></option>
+                            
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Product Name -->
+                <div class="mb-3 row">
+                    <label class="col-sm-2 col-form-label">Product Name</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="product_name" class="form-control" required>
+                    </div>
+                </div>
+
+                <!-- Product Description -->
+                <div class="mb-3 row">
+                    <label class="col-sm-2 col-form-label">Product Description</label>
+                    <div class="col-sm-10">
+                        <textarea name="product_description" class="form-control" rows="4" required></textarea>
+                    </div>
+                </div>
+
+                <!-- Product Image -->
+              <!-- Product Image -->
+<div class="mb-3 row">
+    <label class="col-sm-2 col-form-label">Product Images</label>
+    <div class="col-sm-10">
+        <input type="file" name="product_images[]" accept="image/*" class="form-control" multiple required>
+    </div>
+</div>
+
+
+                <!-- Price -->
+                <div class="mb-3 row">
+                    <label class="col-sm-2 col-form-label">Price</label>
+                    <div class="col-sm-10">
+                        <input type="number" name="price" step="0.01" class="form-control" required>
+                    </div>
+                </div>
+
+                <!-- Stock Quantity -->
+                <div class="mb-3 row">
+                    <label class="col-sm-2 col-form-label">Stock Quantity</label>
+                    <div class="col-sm-10">
+                        <input type="number" name="stock_quantity" class="form-control" required>
+                    </div>
+                </div>
+
+                <!-- Is Active -->
+                <div class="mb-3 row">
+                    <label class="col-sm-2 col-form-label">Is Active</label>
+                    <div class="col-sm-10">
+                        <select name="is_active" class="form-select">
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="mb-3 row">
+                    <div class="col-sm-10 offset-sm-2">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Product</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="assets/vendor/jquery/jquery.min.js"></script>
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/form-validator.js"></script>
+    <script src="assets/js/script.js"></script>
+</body>
+
+</html>
